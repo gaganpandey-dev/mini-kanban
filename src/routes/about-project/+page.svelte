@@ -1,7 +1,3 @@
-<script lang="ts">
-  // no JS needed (static informational page)
-</script>
-
 <section class="about-project">
   <h1>Mini Kanban Board – Project Overview</h1>
 
