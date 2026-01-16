@@ -5,13 +5,13 @@
   import { get } from 'svelte/store';
   import { getCards, saveCards } from '$lib/utils/storage';
 
+  const STATUSES: Card['status'][] = ['todo', 'doing', 'done'];
+
   let newTitle = '';
   let newDesc = '';
   let editingCard: Card | null = null;
   let editTitle = '';
   let editDesc = '';
-
-  const STATUSES: Card['status'][] = ['todo', 'doing', 'done'];
 
   onMount(() => {
     cardsStore.set(getCards());
@@ -20,39 +20,34 @@
   function createCard() {
     if (!newTitle.trim()) return;
 
-    const cards = getCards();
-
     const card: Card = {
       id: crypto.randomUUID(),
       title: newTitle,
       description: newDesc || null,
-      status: 'todo',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      status: 'todo'
     };
 
-    const updated = [card, ...cards];
-    saveCards(updated);
+    const updated = [...get(cardsStore), card];
     cardsStore.set(updated);
+    saveCards(updated);
 
     newTitle = '';
     newDesc = '';
   }
 
   function updateCard(card: Card, updates: Partial<Card>) {
-    const updated = getCards().map(c =>
+    const updated = get(cardsStore).map((c: Card) =>
       c.id === card.id ? { ...c, ...updates } : c
     );
-
-    saveCards(updated);
     cardsStore.set(updated);
+    saveCards(updated);
     editingCard = null;
   }
 
   function deleteCard(id: string) {
-    const updated = getCards().filter(c => c.id !== id);
-    saveCards(updated);
+    const updated = get(cardsStore).filter((c: Card) => c.id !== id);
     cardsStore.set(updated);
+    saveCards(updated);
   }
 
   function handleDragStart(e: DragEvent, card: Card) {
@@ -65,12 +60,15 @@
 
   function handleDrop(e: DragEvent, status: Card['status']) {
     const cardId = e.dataTransfer?.getData('text/plain');
-    const card = get(cardsStore).find(c => c.id === cardId);
+    if (!cardId) return;
+
+    const card = get(cardsStore).find((c: Card) => c.id === cardId);
     if (card && card.status !== status) {
       updateCard(card, { status });
     }
   }
 </script>
+
 
 <div class="container">
   <div class="new-card">

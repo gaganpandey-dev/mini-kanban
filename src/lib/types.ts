@@ -1,10 +1,7 @@
-export type CardStatus = 'todo' | 'doing' | 'done';
-
-export interface Card {
+export type Card = {
   id: string;
   title: string;
   description?: string | null;
-  status: CardStatus;
-  createdAt: string;
-  updatedAt: string;
-}
+  status: 'todo' | 'doing' | 'done';
+};
+
