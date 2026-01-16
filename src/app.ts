@@ -2,3 +2,5 @@
 export const handleError = ({ error }: { error: any }) => {
   console.error(error);
 };
+
+import './static/styles.css';

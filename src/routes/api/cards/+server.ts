@@ -1,30 +1,23 @@
 import { json } from '@sveltejs/kit';
 import { prisma } from '$lib/db';
-import type { RequestHandler } from './$types';
 
-export const GET: RequestHandler = async () => {
+export async function GET() {
   const cards = await prisma.card.findMany({
     orderBy: { createdAt: 'desc' }
   });
-
   return json(cards);
-};
+}
 
-export const POST: RequestHandler = async ({ request }) => {
-  const { title, description } = await request.json();
-
-  if (!title) {
-    return json({ error: 'Title required' }, { status: 400 });
-  }
+export async function POST({ request }) {
+  const body = await request.json();
 
   const card = await prisma.card.create({
     data: {
-      title,
-      description,
+      title: body.title,
+      description: body.description ?? null,
       status: 'todo'
     }
   });
 
-  return json(card, { status: 201 });
-};
-
+  return json(card);
+}

@@ -1,8 +1,7 @@
-import { json, error } from '@sveltejs/kit';
+import { json } from '@sveltejs/kit';
 import { prisma } from '$lib/db';
-import type { RequestHandler } from './$types';
 
-export const PATCH: RequestHandler = async ({ params, request }) => {
+export async function PATCH({ params, request }) {
   const updates = await request.json();
 
   if (
@@ -12,32 +11,22 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
     return json({ error: 'Invalid status' }, { status: 400 });
   }
 
-  const allowed = {
-    title: updates.title,
-    description: updates.description,
-    status: updates.status
-  };
-
   try {
     const card = await prisma.card.update({
       where: { id: params.id },
-      data: allowed
+      data: updates
     });
 
     return json(card);
   } catch {
-    throw error(404, 'Card not found');
+    return json({ error: 'Card not found' }, { status: 404 });
   }
-};
+}
 
-export const DELETE: RequestHandler = async ({ params }) => {
-  try {
-    await prisma.card.delete({
-      where: { id: params.id }
-    });
+export async function DELETE({ params }) {
+  await prisma.card.delete({
+    where: { id: params.id }
+  });
 
-    return json({ success: true });
-  } catch {
-    throw error(404, 'Card not found');
-  }
-};
+  return json({ success: true });
+}
